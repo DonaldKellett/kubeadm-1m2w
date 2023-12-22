@@ -16,6 +16,10 @@ ln -s ../../hooks/pre-commit ./.git/hooks/pre-commit
 
 ### Prerequisites
 
+#### AWS
+
+If deploying the resources to AWS, you'll need to install and set up [AWS CLI v2](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) with a valid access key and secret key corresponding to an [IAM administrator account](https://docs.aws.amazon.com/streams/latest/dev/setting-up.html).
+
 #### OpenTofu
 
 Install the latest version of [OpenTofu](https://opentofu.org/docs/intro/install/portable). The version used is `1.6.0-rc1` at the time of writing \(2023-12-22\).
@@ -37,6 +41,7 @@ The following OpenTofu variables are supported for AWS.
 
 | Variable | Type | Default | Description |
 | --- | --- | --- | --- |
+| `profile` | `string` | `"default"` | AWS profile to assume for AWS CLI v2 and OpenTofu |
 | `region` | `string` | `"ap-east-1"` | AWS region to deploy the resources into |
 | `ssh_pubkey_path` | `string` | `"~/.ssh/id_rsa.pub"` | Path to SSH public key. You may assume it is evaluated with `pathexpand()` before use |
 | `vpc_cidr` | `string` | `"10.0.0.0/16"` | VPC CIDR block. Should be a valid [RFC 1918](https://datatracker.ietf.org/doc/html/rfc1918) private subnet |
