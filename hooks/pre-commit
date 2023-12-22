@@ -1,9 +1,16 @@
 #!/bin/bash -e
 
-CLOUD_PROVIDER="${CLOUD_PROVIDER:-aws}"
+tofu -chdir="opentofu/aws/" init -backend=false
+if ! tofu -chdir="opentofu/aws/" fmt -check; then
+    tofu -chdir="opentofu/aws/" fmt
+    echo "Formatting issues detected and fixed, please stage the new changes" 1>&2
+    echo "Your changes were NOT committed" 1>&2
+    exit 1
+fi
 
-if ! tofu -chdir="opentofu/${CLOUD_PROVIDER}/" fmt -check; then
-    tofu -chdir="opentofu/${CLOUD_PROVIDER}/" fmt
+tofu -chdir="opentofu/aliyun/" init -backend=false
+if ! tofu -chdir="opentofu/aliyun/" fmt -check; then
+    tofu -chdir="opentofu/aliyun/" fmt
     echo "Formatting issues detected and fixed, please stage the new changes" 1>&2
     echo "Your changes were NOT committed" 1>&2
     exit 1

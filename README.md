@@ -4,7 +4,7 @@ Automated creation of [kubeadm](https://kubernetes.io/docs/reference/setup-tools
 
 ## What is this?
 
-This automation stack provisions 3 cloud VM instances in the cloud provider of your choice \(currently only [AWS](https://aws.amazon.com/)\) each with 2 vCPUs, 8 GiB of memory, 16 GiB for the system disk and an additional unpartitioned, unformatted 64GiB data disk, then installs a bare-bones [Kubernetes](https://kubernetes.io/) cluster with `kubeadm` in a 3-node configuration with 1 master node and 2 worker nodes.
+This automation stack provisions 3 Ubuntu 22.04 instances in the cloud provider of your choice \(currently [AWS](https://aws.amazon.com/) and [Alibaba Cloud](https://www.alibabacloud.com/) are supported\) each with 2 vCPUs, 8 GiB of memory, 16 GiB for the system disk and an additional unpartitioned, unformatted 64GiB data disk, then installs a bare-bones [Kubernetes](https://kubernetes.io/) cluster with `kubeadm` in a 3-node configuration with 1 master node and 2 worker nodes.
 
 _Disclaimer: This project is intended for educational and demonstration purposes and is not suitable for use in a production context._ **Use at your own risk.**
 
@@ -26,6 +26,17 @@ ln -s ../../hooks/pre-commit ./.git/hooks/pre-commit
 
 If deploying the resources to AWS, you'll need to install and set up [AWS CLI v2](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) with a valid access key and secret key corresponding to an [IAM administrator account](https://docs.aws.amazon.com/streams/latest/dev/setting-up.html).
 
+#### Alibaba Cloud
+
+If deploying the resources on Alibaba Cloud, you'll need to set 2 environment variables prior to running OpenTofu:
+
+```bash
+export TF_VAR_aliyun_access_key="XXXXXXXXXXXXXXXXXXXXXXXX" # replace me!
+export TF_VAR_aliyun_secret_key="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" # replace me!
+```
+
+The access and secret keys should correspond to a [RAM account](https://www.alibabacloud.com/product/ram) with administrator privileges.
+
 #### OpenTofu
 
 Install the latest version of [OpenTofu](https://opentofu.org/docs/intro/install/portable). The version used is `1.6.0-rc1` at the time of writing \(2023-12-22\).
@@ -41,7 +52,7 @@ Install the latest version of [Ansible](https://docs.ansible.com/ansible/latest/
 #### OpenTofu
 
 ```bash
-export CLOUD_PROVIDER="aws"
+export CLOUD_PROVIDER="aws" # or "aliyun"
 tofu -chdir="opentofu/${CLOUD_PROVIDER}/" init
 tofu -chdir="opentofu/${CLOUD_PROVIDER}/" plan
 tofu -chdir="opentofu/${CLOUD_PROVIDER}/" apply
@@ -57,9 +68,15 @@ The following OpenTofu variables are supported for AWS.
 | `ssh_pubkey_path` | `string` | `"~/.ssh/id_rsa.pub"` | Path to SSH public key. Evaluated with `pathexpand()` before use |
 | `vpc_cidr` | `string` | `"10.0.0.0/16"` | VPC CIDR block. Should be a valid [RFC 1918](https://datatracker.ietf.org/doc/html/rfc1918) private subnet |
 | `subnet_cidr` | `string` | `"10.0.1.0/24"` | Subnet CIDR block. Should be a valid subnet of the VPC CIDR block |
-| `instance_type` | `string` | `t3.large` | EC2 instance type for each node |
+| `instance_type` | `string` | `"t3.large"` | EC2 instance type for each node |
 | `sys_volume_size` | `number` | `16` | Size of root volume in GiB |
 | `data_volume_size` | `number` | `64` | Size of EBS data volume in GiB |
+
+The following OpenTofu variables are supported for Alibaba Cloud.
+
+| Variable | Type | Default | Description |
+| --- | --- | --- | --- |
+| `region` | `string` | `"cn-hongkong"` | Alibaba Cloud region to deploy the resources into |
 
 #### Ansible
 
