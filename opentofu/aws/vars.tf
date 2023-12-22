@@ -17,3 +17,13 @@ variable "subnet_cidr" {
   type    = string
   default = "10.0.1.0/24"
 }
+
+variable "instance_type" {
+  type    = string
+  default = "t3.large"
+}
+
+variable "sys_volume_size" {
+  type    = number
+  default = 16
+}
