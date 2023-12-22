@@ -42,7 +42,8 @@ The following OpenTofu variables are supported for AWS.
 | `vpc_cidr` | `string` | `"10.0.0.0/16"` | VPC CIDR block. Should be a valid [RFC 1918](https://datatracker.ietf.org/doc/html/rfc1918) private subnet |
 | `subnet_cidr` | `string` | `"10.0.1.0/24"` | Subnet CIDR block. Should be a valid subnet of the VPC CIDR block |
 | `instance_type` | `string` | `t3.large` | EC2 instance type for each node |
-| `sys_volume_size` | `number` | `16` | Size of root block device in GiB |
+| `sys_volume_size` | `number` | `16` | Size of root volume in GiB |
+| `data_volume_size` | `number` | `64` | Size of EBS data volume in GiB |
 
 ## License
 

@@ -27,3 +27,8 @@ variable "sys_volume_size" {
   type    = number
   default = 16
 }
+
+variable "data_volume_size" {
+  type    = number
+  default = 64
+}
