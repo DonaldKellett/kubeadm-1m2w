@@ -2,6 +2,12 @@
 
 Automated creation of [kubeadm](https://kubernetes.io/docs/reference/setup-tools/kubeadm/) cluster \(1 master, 2 workers\) with [OpenTofu](https://opentofu.org/) and [Ansible](https://www.ansible.com/)
 
+## What is this?
+
+This automation stack provisions 3 cloud VM instances in the cloud provider of your choice \(currently only [AWS](https://aws.amazon.com/)\) each with 2 vCPUs, 8 GiB of memory, 16 GiB for the system disk and an additional unpartitioned, unformatted 64GiB data disk, then installs a bare-bones [Kubernetes](https://kubernetes.io/) cluster with `kubeadm` in a 3-node configuration with 1 master node and 2 worker nodes.
+
+_Disclaimer: This project is intended for educational and demonstration purposes and is not suitable for use in a production context._ **Use at your own risk.**
+
 ## Developing
 
 Fork and clone this repository, then navigate to the project root and follow the instructions below.

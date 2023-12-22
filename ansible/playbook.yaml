@@ -79,10 +79,18 @@
     register: discovery_token
     ansible.builtin.shell: |
       kubeadm token list -o jsonpath='{.token}'
-  - name: Save discovery token to dummy host
+  - name: Get discovery token CA cert hash from master node
+    register: discovery_token_ca_cert_hash
+    ansible.builtin.shell: |
+      openssl x509 -in /etc/kubernetes/pki/ca.crt -noout -pubkey | \
+          openssl rsa -pubin -outform DER 2>/dev/null | \
+          sha256sum | \
+          awk '{ print $1 }'
+  - name: Save discovery token and CA cert hash to dummy host
     ansible.builtin.add_host:
       name: "credentials"
       discovery_token: "{{ discovery_token.stdout }}"
+      discovery_token_ca_cert_hash: "{{ discovery_token_ca_cert_hash.stdout }}"
 - name: Set up K8s worker nodes
   hosts: workers
   tasks:
@@ -132,6 +140,16 @@
           kubelet=1.28.3-1.1
       sudo apt-mark hold kubelet kubeadm
       sudo systemctl enable --now kubelet.service
-  - name: View discovery token
-    ansible.builtin.debug:
-      msg: "{{ hostvars['credentials']['discovery_token'] }}"
+  - name: Join worker nodes to cluster
+    ansible.builtin.shell: |
+      export K8S_TOKEN="{{ hostvars['credentials']['discovery_token'] }}"
+      export K8S_CA_CERT_HASH="{{ hostvars['credentials']['discovery_token_ca_cert_hash'] }}"
+      sudo kubeadm join k8s-control-plane:6443 \
+          --discovery-token "${K8S_TOKEN}" \
+          --discovery-token-ca-cert-hash "sha256:${K8S_CA_CERT_HASH}"
+- name: Wait for all nodes to be ready
+  hosts: masters
+  tasks:
+  - name: Wait for all nodes to be ready
+    ansible.builtin.shell: |
+      kubectl wait --for=condition=Ready node --all
