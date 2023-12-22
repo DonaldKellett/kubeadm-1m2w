@@ -71,7 +71,7 @@
           kubectl apply -f -
   - name: Wait for master node to become ready
     ansible.builtin.shell: |
-      kubectl wait --for=condition=Ready node master0
+      kubectl wait --for=condition=Ready node master0 --timeout=180s
   - name: Remove control plane taint from master node
     ansible.builtin.shell: |
       kubectl taint node master0 node-role.kubernetes.io/control-plane-
@@ -152,4 +152,4 @@
   tasks:
   - name: Wait for all nodes to be ready
     ansible.builtin.shell: |
-      kubectl wait --for=condition=Ready node --all
+      kubectl wait --for=condition=Ready node --all --timeout=180s
