@@ -8,6 +8,11 @@ variable "region" {
   default = "ap-east-1"
 }
 
+variable "ssh_privkey_path" {
+  type    = string
+  default = "~/.ssh/id_rsa"
+}
+
 variable "ssh_pubkey_path" {
   type    = string
   default = "~/.ssh/id_rsa.pub"

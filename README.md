@@ -26,6 +26,10 @@ Install the latest version of [OpenTofu](https://opentofu.org/docs/intro/install
 
 You'll also need an SSH key pair for remoting into your instances - generate this with `ssh-keygen` if you haven't already.
 
+#### Ansible
+
+Install the latest version of [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html). The version used is `2.16.2` at the time of writing \(2023-12-22\).
+
 ### Deploy
 
 #### OpenTofu
@@ -43,12 +47,20 @@ The following OpenTofu variables are supported for AWS.
 | --- | --- | --- | --- |
 | `profile` | `string` | `"default"` | AWS profile to assume for AWS CLI v2 and OpenTofu |
 | `region` | `string` | `"ap-east-1"` | AWS region to deploy the resources into |
-| `ssh_pubkey_path` | `string` | `"~/.ssh/id_rsa.pub"` | Path to SSH public key. You may assume it is evaluated with `pathexpand()` before use |
+| `ssh_privkey_path` | `string` | `"~/.ssh/id_rsa"` | Path to SSH private key. Evaluated with `pathexpand()` before use |
+| `ssh_pubkey_path` | `string` | `"~/.ssh/id_rsa.pub"` | Path to SSH public key. Evaluated with `pathexpand()` before use |
 | `vpc_cidr` | `string` | `"10.0.0.0/16"` | VPC CIDR block. Should be a valid [RFC 1918](https://datatracker.ietf.org/doc/html/rfc1918) private subnet |
 | `subnet_cidr` | `string` | `"10.0.1.0/24"` | Subnet CIDR block. Should be a valid subnet of the VPC CIDR block |
 | `instance_type` | `string` | `t3.large` | EC2 instance type for each node |
 | `sys_volume_size` | `number` | `16` | Size of root volume in GiB |
 | `data_volume_size` | `number` | `64` | Size of EBS data volume in GiB |
+
+#### Ansible
+
+```bash
+export ANSIBLE_CONFIG="${PWD}/ansible/ansible.cfg"
+ansible-playbook "${PWD}/ansible/playbook.yaml"
+```
 
 ## License
 
