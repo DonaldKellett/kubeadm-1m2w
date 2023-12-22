@@ -1,0 +1,24 @@
+name: GitHub Actions pipeline for kubeadm cluster (1 master, 2 workers) with OpenTofu and Ansible
+on:
+  push:
+    branches:
+    - main
+jobs:
+  opentofu-aws:
+    runs-on: ubuntu-latest
+    container:
+      image: ubuntu:22.04
+    steps:
+    - name: OpenTofu - Setup Tofu
+      uses: opentofu/setup-opentofu@v1
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Initialize OpenTofu without backend
+      run: |
+        tofu -chdir="opentofu/aws/" init -backend=false
+    - name: Check OpenTofu formatting
+      run: |
+        tofu -chdir="opentofu/aws/" fmt -check
+    - name: Validate OpenTofu configuration
+      run: |
+        tofu -chdir="opentofu/aws/" validate
