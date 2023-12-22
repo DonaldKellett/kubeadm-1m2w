@@ -72,6 +72,17 @@
   - name: Wait for master node to become ready
     ansible.builtin.shell: |
       kubectl wait --for=condition=Ready node master0
+  - name: Remove control plane taint from master node
+    ansible.builtin.shell: |
+      kubectl taint node master0 node-role.kubernetes.io/control-plane-
+  - name: Get discovery token from master node
+    register: discovery_token
+    ansible.builtin.shell: |
+      kubeadm token list -o jsonpath='{.token}'
+  - name: Save discovery token to dummy host
+    ansible.builtin.add_host:
+      name: "credentials"
+      discovery_token: "{{ discovery_token.stdout }}"
 - name: Set up K8s worker nodes
   hosts: workers
   tasks:
@@ -111,3 +122,16 @@
       sudo mkdir -p /opt/cni/bin/
       wget https://github.com/containernetworking/plugins/releases/download/v1.3.0/cni-plugins-linux-amd64-v1.3.0.tgz
       sudo tar Cxzvf /opt/cni/bin cni-plugins-linux-amd64-v1.3.0.tgz
+  - name: Install Kubernetes v1.28.3
+    ansible.builtin.shell: |
+      sudo apt update && sudo apt install -y apt-transport-https ca-certificates curl
+      curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+      echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+      sudo apt update && sudo apt install -y \
+          kubeadm=1.28.3-1.1 \
+          kubelet=1.28.3-1.1
+      sudo apt-mark hold kubelet kubeadm
+      sudo systemctl enable --now kubelet.service
+  - name: View discovery token
+    ansible.builtin.debug:
+      msg: "{{ hostvars['credentials']['discovery_token'] }}"
