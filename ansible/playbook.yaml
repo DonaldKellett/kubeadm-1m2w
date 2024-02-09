@@ -18,10 +18,10 @@
   - name: Reboot the node
     ansible.builtin.reboot:
     become: true
-  - name: Install containerd v1.7.11
+  - name: Install containerd v1.7.13
     ansible.builtin.shell: |
-      wget https://github.com/containerd/containerd/releases/download/v1.7.11/containerd-1.7.11-linux-amd64.tar.gz
-      sudo tar Cxzvf /usr/local containerd-1.7.11-linux-amd64.tar.gz
+      wget https://github.com/containerd/containerd/releases/download/v1.7.13/containerd-1.7.13-linux-amd64.tar.gz
+      sudo tar Cxzvf /usr/local containerd-1.7.13-linux-amd64.tar.gz
       sudo mkdir -p /usr/local/lib/systemd/system/
       sudo wget -qO /usr/local/lib/systemd/system/containerd.service https://raw.githubusercontent.com/containerd/containerd/main/containerd.service
       sudo systemctl daemon-reload
@@ -33,26 +33,26 @@
           sudo tee /etc/containerd/config.toml
       sudo systemctl restart containerd.service
       sudo mkdir -p /usr/local/sbin/
-      sudo wget -qO /usr/local/sbin/runc https://github.com/opencontainers/runc/releases/download/v1.1.10/runc.amd64
+      sudo wget -qO /usr/local/sbin/runc https://github.com/opencontainers/runc/releases/download/v1.1.12/runc.amd64
       sudo chmod +x /usr/local/sbin/runc
       sudo mkdir -p /opt/cni/bin/
       wget https://github.com/containernetworking/plugins/releases/download/v1.4.0/cni-plugins-linux-amd64-v1.4.0.tgz
       sudo tar Cxzvf /opt/cni/bin cni-plugins-linux-amd64-v1.4.0.tgz
-  - name: Install Kubernetes v1.29.0 and Calico v3.27.0
+  - name: Install Kubernetes v1.29.1 and Calico v3.27.0
     ansible.builtin.shell: |
       sudo apt update && sudo apt install -y apt-transport-https ca-certificates curl
       curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
       echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.29/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
       sudo apt update && sudo apt install -y \
-          kubeadm=1.29.0-1.1 \
-          kubelet=1.29.0-1.1 \
-          kubectl=1.29.0-1.1
+          kubeadm=1.29.1-1.1 \
+          kubelet=1.29.1-1.1 \
+          kubectl=1.29.1-1.1
       sudo apt-mark hold kubelet kubeadm kubectl
       sudo systemctl enable --now kubelet.service
       cat > kubeadm-config.yaml << EOF
       kind: ClusterConfiguration
       apiVersion: kubeadm.k8s.io/v1beta3
-      kubernetesVersion: v1.29.0
+      kubernetesVersion: v1.29.1
       controlPlaneEndpoint: "k8s-control-plane:6443"
       networking:
         podSubnet: "192.168.0.0/16"
@@ -69,12 +69,12 @@
           source "$HOME/.bashrc"
       wget -qO - https://raw.githubusercontent.com/projectcalico/calico/v3.27.0/manifests/calico.yaml | \
           kubectl apply -f -
-  - name: Wait for master node to become ready
+  - name: Wait for all nodes to be ready
     ansible.builtin.shell: |
-      kubectl wait --for=condition=Ready node master0 --timeout=180s
+      kubectl wait --for=condition=Ready node --all --timeout=180s
   - name: Remove control plane taint from master node
     ansible.builtin.shell: |
-      kubectl taint node master0 node-role.kubernetes.io/control-plane-
+      kubectl taint node --all node-role.kubernetes.io/control-plane-
   - name: Get discovery token from master node
     register: discovery_token
     ansible.builtin.shell: |
@@ -110,10 +110,10 @@
   - name: Reboot the node
     ansible.builtin.reboot:
     become: true
-  - name: Install containerd v1.7.11
+  - name: Install containerd v1.7.13
     ansible.builtin.shell: |
-      wget https://github.com/containerd/containerd/releases/download/v1.7.11/containerd-1.7.11-linux-amd64.tar.gz
-      sudo tar Cxzvf /usr/local containerd-1.7.11-linux-amd64.tar.gz
+      wget https://github.com/containerd/containerd/releases/download/v1.7.13/containerd-1.7.13-linux-amd64.tar.gz
+      sudo tar Cxzvf /usr/local containerd-1.7.13-linux-amd64.tar.gz
       sudo mkdir -p /usr/local/lib/systemd/system/
       sudo wget -qO /usr/local/lib/systemd/system/containerd.service https://raw.githubusercontent.com/containerd/containerd/main/containerd.service
       sudo systemctl daemon-reload
@@ -125,19 +125,19 @@
           sudo tee /etc/containerd/config.toml
       sudo systemctl restart containerd.service
       sudo mkdir -p /usr/local/sbin/
-      sudo wget -qO /usr/local/sbin/runc https://github.com/opencontainers/runc/releases/download/v1.1.10/runc.amd64
+      sudo wget -qO /usr/local/sbin/runc https://github.com/opencontainers/runc/releases/download/v1.1.12/runc.amd64
       sudo chmod +x /usr/local/sbin/runc
       sudo mkdir -p /opt/cni/bin/
       wget https://github.com/containernetworking/plugins/releases/download/v1.4.0/cni-plugins-linux-amd64-v1.4.0.tgz
       sudo tar Cxzvf /opt/cni/bin cni-plugins-linux-amd64-v1.4.0.tgz
-  - name: Install Kubernetes v1.29.0
+  - name: Install Kubernetes v1.29.1
     ansible.builtin.shell: |
       sudo apt update && sudo apt install -y apt-transport-https ca-certificates curl
       curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
       echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.29/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
       sudo apt update && sudo apt install -y \
-          kubeadm=1.29.0-1.1 \
-          kubelet=1.29.0-1.1
+          kubeadm=1.29.1-1.1 \
+          kubelet=1.29.1-1.1
       sudo apt-mark hold kubelet kubeadm
       sudo systemctl enable --now kubelet.service
   - name: Join worker nodes to cluster
